@@ -27,6 +27,7 @@ func _init():
 	viewer.anchor_left = ANCHOR_BEGIN
 	viewer.anchor_bottom = ANCHOR_END
 	viewer.anchor_right = ANCHOR_END
+	viewer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _enter_tree():
 	add_child(viewer)
