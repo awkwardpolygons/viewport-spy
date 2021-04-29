@@ -11,7 +11,7 @@ func set_texture(v):
 	view.texture = v
 
 func _init():
-#	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	view = SpyView.new()
 	view.anchor_top = ANCHOR_BEGIN
 	view.anchor_left = ANCHOR_BEGIN
