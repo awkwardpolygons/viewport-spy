@@ -10,6 +10,10 @@ var object: Viewport setget set_object
 var view: SpyView
 var zoom: SpyZoom
 var toggle: Button
+# A workaround for popup not capturing its exit click, which then gets passed
+# onto underlying controls, if the spy view is still under the mouse on click
+# then the popup is reopened immediately, and looks like it never closed.
+var _zoom_just_hidden: bool = false
 
 func set_object(v):
 	object = v
@@ -27,9 +31,10 @@ func _init():
 	view.rect_min_size.y = 256.0
 	view.rect_size = Vector2(256, 256)
 	view.visible = false
-	view.focus_mode = Control.FOCUS_ALL
+#	view.focus_mode = Control.FOCUS_ALL
 	view.connect("gui_input", self, "_on_toggle_zoom")
 	zoom = SpyZoom.new()
+	zoom.connect("popup_hide", self, "_on_zoom_hide")
 	toggle = Button.new()
 	toggle.toggle_mode = true
 	toggle.text = "Preview"
@@ -50,6 +55,7 @@ func _exit_tree():
 		view.disconnect("gui_input", self, "_on_toggle_zoom")
 		view.queue_free()
 	if is_instance_valid(zoom):
+		zoom.disconnect("popup_hide", self, "_on_zoom_hide")
 		zoom.texture = null
 		zoom.queue_free()
 	if is_instance_valid(toggle):
@@ -62,6 +68,10 @@ func _on_toggle_view(visible):
 	toggle.icon = icon_shown if visible else icon_hidden
 
 func _on_toggle_zoom(event):
-	if event is InputEventMouseButton and event.pressed:
+	if !_zoom_just_hidden and event is InputEventMouseButton and event.pressed:
 		zoom.texture = object.get_texture()
 		zoom.popup_centered_ratio(0.6)
+	_zoom_just_hidden = false
+
+func _on_zoom_hide():
+	_zoom_just_hidden = true
